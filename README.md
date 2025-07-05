@@ -2,6 +2,11 @@
 
 Automated Claude Code execution script that runs tasks in a loop.
 
+## Scripts
+
+- `claude-auto-runner.sh` - Full-featured script with error detection, logging, and configuration options
+- `autocc.sh` - Ultra-simple 2-line script for quick automation
+
 ## How It Works
 
 This automation script leverages Claude Code's non-interactive mode to execute task queries and verification queries in an infinite loop. This enables Claude Code to continuously process tasks even while you're sleeping or working on other things.
@@ -20,6 +25,13 @@ You can easily modify the messages using Claude Code to fit your specific use ca
 
 ## Usage
 
+### Quick Start (Simple Script)
+```bash
+# Ultra-simple automation
+./autocc.sh
+```
+
+### Full-Featured Script
 ```bash
 ./claude-auto-runner.sh
 ```
