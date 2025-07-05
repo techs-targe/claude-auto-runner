@@ -14,6 +14,8 @@ DEFAULT_ERROR_PATTERNS=("API ERROR" "stop")
 ERROR_PATTERNS=("${DEFAULT_ERROR_PATTERNS[@]}")
 WAIT_TIME=5
 MAX_LOG_SIZE=10485760  # 10MB in bytes
+MAX_RETRIES=3
+RETRY_DELAY=5
 
 # Cleanup function
 cleanup() {
@@ -160,12 +162,20 @@ while [[ $# -gt 0 ]]; do
                 echo "Error: --wait requires a numeric value"
                 exit 1
             fi
+            if [[ "$2" -lt 1 || "$2" -gt 3600 ]]; then
+                echo "Error: --wait value must be between 1 and 3600 seconds"
+                exit 1
+            fi
             WAIT_TIME="$2"
             shift 2
             ;;
         --max-log-size)
             if [[ -z "$2" || ! "$2" =~ ^[0-9]+$ ]]; then
                 echo "Error: --max-log-size requires a numeric value"
+                exit 1
+            fi
+            if [[ "$2" -lt 1024 ]]; then
+                echo "Error: --max-log-size must be at least 1024 bytes (1KB)"
                 exit 1
             fi
             MAX_LOG_SIZE="$2"
@@ -191,7 +201,16 @@ fi
 
 # Validate log directory
 if [[ ! -d "$LOG_DIR" ]]; then
-    echo "Error: Log directory '$LOG_DIR' does not exist"
+    echo "Log directory '$LOG_DIR' does not exist. Creating it..."
+    if ! mkdir -p "$LOG_DIR" 2>/dev/null; then
+        echo "Error: Cannot create log directory '$LOG_DIR'"
+        exit 1
+    fi
+fi
+
+# Check write permissions
+if [[ ! -w "$LOG_DIR" ]]; then
+    echo "Error: No write permissions for log directory '$LOG_DIR'"
     exit 1
 fi
 
@@ -243,9 +262,17 @@ execute_claude() {
     
     TEMP_FILE="$temp_file"  # Store for cleanup
     
+    # Check if claude command exists
+    if ! command -v claude >/dev/null 2>&1; then
+        echo "Error: 'claude' command not found. Please install Claude CLI."
+        rm -f "$temp_file"
+        return 1
+    fi
+    
     # Execute Claude command with proper error handling
     if ! claude $CLAUDE_OPTS -c -p "$message" 2>&1 | tee -a "$LOG_FILE" | tee "$temp_file"; then
-        echo "Error: Claude command failed"
+        echo "Error: Claude command failed with exit code $?"
+        echo "Check if Claude CLI is properly configured and authenticated."
         rm -f "$temp_file"
         return 1
     fi
@@ -264,14 +291,40 @@ execute_claude() {
     return 0
 }
 
+# Function to execute Claude command with retry logic
+execute_claude_with_retry() {
+    local message="$1"
+    local attempt=1
+    local delay=$RETRY_DELAY
+    
+    while [[ $attempt -le $MAX_RETRIES ]]; do
+        if execute_claude "$message"; then
+            return 0
+        fi
+        
+        if [[ $attempt -lt $MAX_RETRIES ]]; then
+            echo "Attempt $attempt failed. Retrying in $delay seconds..." | tee -a "$LOG_FILE"
+            sleep $delay
+            ((delay *= 2))  # Exponential backoff
+            ((attempt++))
+        else
+            echo "All $MAX_RETRIES attempts failed." | tee -a "$LOG_FILE"
+            return 1
+        fi
+    done
+}
+
 # Display configuration
-echo "Configuration:"
+echo "==================================="
+echo "Claude Auto Runner Configuration"
+echo "==================================="
 echo "  Dangerous mode: $DANGEROUS_MODE"
 echo "  Verbose mode: $VERBOSE_MODE"
 echo "  Log directory: $LOG_DIR"
 echo "  Wait time: $WAIT_TIME seconds"
-echo "  Max log size: $MAX_LOG_SIZE bytes"
+echo "  Max log size: $(($MAX_LOG_SIZE / 1048576))MB"
 echo "  Error patterns: ${ERROR_PATTERNS[*]}"
+echo "==================================="
 echo ""
 
 # Warning if not in dangerous mode
@@ -299,8 +352,8 @@ while true; do
     echo "Executing first command..." | tee -a "$LOG_FILE"
     echo "Message: $MESSAGE1" | tee -a "$LOG_FILE"
     
-    if ! execute_claude "$MESSAGE1"; then
-        echo "Error detected in first command. Exiting..." | tee -a "$LOG_FILE"
+    if ! execute_claude_with_retry "$MESSAGE1"; then
+        echo "Error detected in first command after retries. Exiting..." | tee -a "$LOG_FILE"
         break
     fi
     
@@ -308,8 +361,8 @@ while true; do
     echo -e "\nExecuting second command..." | tee -a "$LOG_FILE"
     echo "Message: $MESSAGE2" | tee -a "$LOG_FILE"
     
-    if ! execute_claude "$MESSAGE2"; then
-        echo "Error detected in second command. Exiting..." | tee -a "$LOG_FILE"
+    if ! execute_claude_with_retry "$MESSAGE2"; then
+        echo "Error detected in second command after retries. Exiting..." | tee -a "$LOG_FILE"
         break
     fi
     

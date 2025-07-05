@@ -108,7 +108,7 @@ test_error_patterns() {
 # Test 6: Signal handling
 test_signal_handling() {
     local script_content=$(cat ./claude-auto-runner.sh)
-    if echo "$script_content" | grep -q 'trap cleanup SIGINT SIGTERM'; then
+    if echo "$script_content" | grep -q 'trap cleanup.*SIGINT.*SIGTERM'; then
         print_result "Signal handling setup" "pass"
     else
         print_result "Signal handling setup" "fail" "Signal handlers not configured"

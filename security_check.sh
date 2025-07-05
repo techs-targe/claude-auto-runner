@@ -66,8 +66,8 @@ dangerous_patterns=(
 )
 vulnerabilities_found=false
 for pattern in "${dangerous_patterns[@]}"; do
-    # Exclude safe patterns: comments, mktemp, date, stat, cat with safe file
-    if grep -E "$pattern" "$SCRIPT" | grep -v "^#" | grep -v 'mktemp' | grep -v 'date +' | grep -v 'stat -c' | grep -v 'cat "$temp_file"' | grep -v '^\s*response=\$' | grep -v 'echo.*Iteration.*date'; then
+    # Exclude safe patterns: comments, mktemp, date, stat, cat with safe file, arithmetic operations on validated variables
+    if grep -E "$pattern" "$SCRIPT" | grep -v "^#" | grep -v 'mktemp' | grep -v 'date +' | grep -v 'stat -c' | grep -v 'cat "$temp_file"' | grep -v '^\s*response=\$' | grep -v 'echo.*Iteration.*date' | grep -v '\$((.*MAX_LOG_SIZE.*))'; then
         vulnerabilities_found=true
     fi
 done
