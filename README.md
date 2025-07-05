@@ -8,6 +8,13 @@ Automated Claude Code execution script with configurable options for running tas
 
 This script automates the execution of Claude Code commands in a loop, allowing you to run complex tasks unattended. It includes error detection, logging, and customizable messages.
 
+## Quick Links
+
+- 🚀 [Quick Start Guide](QUICKSTART.md) - Get started in 5 minutes
+- 📚 [Examples & Use Cases](EXAMPLES.md) - Practical scenarios and patterns
+- 🔒 [Security Check](security_check.sh) - Validate security settings
+- 🧪 [Test Suite](test_claude_auto_runner.sh) - Run comprehensive tests
+
 ## How It Works
 
 This automation script leverages Claude Code's non-interactive mode to execute task queries and verification queries in an infinite loop. This enables Claude Code to continuously process tasks even while you're sleeping or working on other things.
