@@ -22,6 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Completion files with installation instructions
 - make install-completions target for easy setup
 - Tab completion for all options, directories, and config files
+- Log analysis tool (claude-log-analyzer.sh) for analyzing log patterns and statistics
+- Pre-commit hooks for development workflow (.pre-commit-config.yaml)
+- Development setup script (setup-dev.sh)
+- Automated code quality checks before commits
+- Enhanced Makefile to install/uninstall log analyzer
+- Additional tests for log analyzer and development tools
 
 ## [1.0.0] - 2025-01-05
 

@@ -18,6 +18,7 @@ This script automates the execution of Claude Code commands in a loop, allowing 
 - 📝 [Changelog](CHANGELOG.md) - Version history
 - 🔒 [Security Check](security_check.sh) - Validate security settings
 - 🧪 [Test Suite](test_claude_auto_runner.sh) - Run comprehensive tests
+- 📊 [Log Analyzer](claude-log-analyzer.sh) - Analyze log files for insights
 
 ## How It Works
 
@@ -49,6 +50,8 @@ You can easily modify the messages using Claude Code to fit your specific use ca
 - **Improved Error Handling**: Better pattern matching and error detection
 - **Iteration Tracking**: Progress tracking with numbered iterations
 - **Shell Completion**: Tab completion support for bash and zsh
+- **Log Analysis Tool**: Analyze logs for patterns, errors, and statistics
+- **Development Tools**: Pre-commit hooks for code quality
 
 ## Installation
 
@@ -179,6 +182,27 @@ All outputs are logged to `claudelog_YYYYMMDD.log` in the specified directory.
 - **Compression**: Old log files are compressed with gzip to save disk space
 - **Timestamped Archives**: Rotated logs are archived with timestamps (e.g., `claudelog_20240101.log.20240101_143022.gz`)
 - **Size Control**: You can customize the maximum log file size using the `--max-log-size` option
+
+### Log Analysis
+
+Use the included log analyzer to gain insights from your logs:
+
+```bash
+# Show statistics for all logs
+./claude-log-analyzer.sh --stats
+
+# Analyze today's logs
+./claude-log-analyzer.sh --today
+
+# Search for errors
+./claude-log-analyzer.sh --errors
+
+# Search for specific patterns
+./claude-log-analyzer.sh --pattern "specific text"
+
+# Get help
+./claude-log-analyzer.sh --help
+```
 
 ## Notes
 

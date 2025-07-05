@@ -1,0 +1,72 @@
+# Pre-commit hook configuration for Claude Auto Runner
+# Install: pip install pre-commit && pre-commit install
+
+repos:
+  # Shell script checks
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+        args: [-S, error]
+        files: \.(sh|bash)$
+        exclude: ^completions/
+
+  # Trailing whitespace
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+
+  # Markdown linting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.39.0
+    hooks:
+      - id: markdownlint
+        args: [--fix]
+        files: \.(md|markdown)$
+
+  # YAML validation
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: check-yaml
+        files: \.(yaml|yml)$
+
+  # Dockerfile linting
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        files: Dockerfile$
+
+# Local hooks
+  - repo: local
+    hooks:
+      # Run tests before commit
+      - id: run-tests
+        name: Run test suite
+        entry: ./test_claude_auto_runner.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+        
+      # Run security check
+      - id: security-check
+        name: Run security check
+        entry: ./security_check.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+        
+      # Check version consistency
+      - id: version-check
+        name: Check version consistency
+        entry: bash -c 'VERSION=$(grep "^VERSION=" claude-auto-runner.sh | cut -d\" -f2); grep -q "Version: $VERSION" claude-auto-runner.sh || (echo "Version mismatch in claude-auto-runner.sh" && exit 1)'
+        language: system
+        pass_filenames: false
+        files: claude-auto-runner.sh

@@ -34,6 +34,34 @@ By participating in this project, you agree to abide by our code of conduct:
    ```bash
    git checkout -b feature/your-feature-name
    ```
+4. Set up development environment:
+   ```bash
+   ./setup-dev.sh
+   ```
+
+## Development Setup
+
+### Pre-commit Hooks
+
+This project uses pre-commit hooks to maintain code quality. The setup script will install them automatically, or you can install manually:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+Pre-commit will run the following checks before each commit:
+- ShellCheck for bash script validation
+- Test suite execution
+- Security validation
+- Version consistency checks
+- Markdown linting
+- Dockerfile linting
+
+To run checks manually:
+```bash
+pre-commit run --all-files
+```
 
 ## How to Contribute
 

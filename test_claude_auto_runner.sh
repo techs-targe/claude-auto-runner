@@ -264,6 +264,49 @@ test_shell_completion() {
     fi
 }
 
+# Test 16: Log analyzer tool
+test_log_analyzer() {
+    if [[ -x "./claude-log-analyzer.sh" ]]; then
+        print_result "Log analyzer exists and is executable" "pass"
+        
+        # Test help output
+        if ./claude-log-analyzer.sh --help 2>&1 | grep -q "Claude Log Analyzer"; then
+            print_result "Log analyzer help works" "pass"
+        else
+            print_result "Log analyzer help works" "fail" "Help output not working"
+        fi
+    else
+        print_result "Log analyzer exists and is executable" "fail" "Not found or not executable"
+    fi
+}
+
+# Test 17: Development tools
+test_dev_tools() {
+    local dev_tools_found=true
+    local missing_files=""
+    
+    # Check for development files
+    for file in ".pre-commit-config.yaml" "setup-dev.sh"; do
+        if [[ ! -f "$file" ]]; then
+            dev_tools_found=false
+            missing_files="$missing_files $file"
+        fi
+    done
+    
+    if [[ "$dev_tools_found" == true ]]; then
+        print_result "Development tool files" "pass"
+    else
+        print_result "Development tool files" "fail" "Missing:$missing_files"
+    fi
+    
+    # Check if setup script is executable
+    if [[ -x "./setup-dev.sh" ]]; then
+        print_result "Setup script is executable" "pass"
+    else
+        print_result "Setup script is executable" "fail" "Not executable"
+    fi
+}
+
 # Main test execution
 echo "==================================="
 echo "Claude Auto Runner Test Suite"
@@ -286,6 +329,8 @@ test_shellcheck
 test_docker_support
 test_config_support
 test_shell_completion
+test_log_analyzer
+test_dev_tools
 
 # Summary
 echo ""

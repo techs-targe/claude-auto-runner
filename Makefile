@@ -41,9 +41,14 @@ install:
 		echo "Error: $(SCRIPT_NAME) not found!"; \
 		exit 1; \
 	fi
-	@echo "Copying $(SCRIPT_NAME) to $(INSTALL_DIR)..."
+	@echo "Copying scripts to $(INSTALL_DIR)..."
 	@sudo cp $(SCRIPT_NAME) $(INSTALL_DIR)/$(SCRIPT_NAME)
 	@sudo chmod 755 $(INSTALL_DIR)/$(SCRIPT_NAME)
+	@if [ -f "claude-log-analyzer.sh" ]; then \
+		sudo cp claude-log-analyzer.sh $(INSTALL_DIR)/claude-log-analyzer.sh; \
+		sudo chmod 755 $(INSTALL_DIR)/claude-log-analyzer.sh; \
+		echo "Log analyzer installed"; \
+	fi
 	@echo "Installation complete!"
 	@echo "You can now run 'claude-auto-runner.sh' from anywhere."
 
@@ -52,10 +57,13 @@ uninstall:
 	@echo "Uninstalling Claude Auto Runner..."
 	@if [ -f "$(INSTALL_DIR)/$(SCRIPT_NAME)" ]; then \
 		sudo rm -f $(INSTALL_DIR)/$(SCRIPT_NAME); \
-		echo "Uninstallation complete!"; \
-	else \
-		echo "Claude Auto Runner is not installed in $(INSTALL_DIR)"; \
+		echo "Main script removed"; \
 	fi
+	@if [ -f "$(INSTALL_DIR)/claude-log-analyzer.sh" ]; then \
+		sudo rm -f $(INSTALL_DIR)/claude-log-analyzer.sh; \
+		echo "Log analyzer removed"; \
+	fi
+	@echo "Uninstallation complete!"
 
 # Test target
 test:
@@ -146,6 +154,8 @@ dev-setup: check-deps
 	@chmod +x $(SCRIPT_NAME)
 	@chmod +x test_claude_auto_runner.sh
 	@chmod +x security_check.sh
+	@chmod +x claude-log-analyzer.sh
+	@chmod +x setup-dev.sh
 	@echo "Development setup complete!"
 
 # Docker targets
