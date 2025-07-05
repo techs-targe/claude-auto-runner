@@ -20,6 +20,7 @@ WAIT_TIME=5
 MAX_LOG_SIZE=10485760  # 10MB in bytes
 MAX_RETRIES=3
 RETRY_DELAY=5
+TIMEOUT_DURATION="7h"  # Default timeout duration
 
 # Configuration file paths (in order of precedence)
 CONFIG_FILES=(
@@ -100,6 +101,8 @@ OPTIONS:
     -c, --clear-errors                  Clear default error patterns before adding new ones
     -w, --wait SECONDS                  Set wait time between iterations (default: 5)
     --max-log-size SIZE                 Set maximum log file size in bytes (default: 10MB)
+    --timeout DURATION                  Set script timeout duration (default: 7h)
+                                        Format: Xh (hours), Xm (minutes), Xs (seconds)
     --config FILE                       Use custom configuration file
 
 EXAMPLES:
@@ -123,6 +126,9 @@ EXAMPLES:
 
     # Run with all options
     $0 -d -v -l ./logs -m1 "Do task X" -m2 "Verify task X" -e "CRITICAL" -w 10
+    
+    # Run with custom timeout (5 hours)
+    $0 -d --timeout 5h
 
 DEFAULT ERROR PATTERNS:
     - API ERROR
@@ -235,6 +241,18 @@ while [[ $# -gt 0 ]]; do
             MAX_LOG_SIZE="$2"
             shift 2
             ;;
+        --timeout)
+            if [[ -z "$2" ]]; then
+                echo "Error: --timeout requires a duration value"
+                exit 1
+            fi
+            if [[ ! "$2" =~ ^[0-9]+[hms]$ ]]; then
+                echo "Error: --timeout must be in format: Xh, Xm, or Xs (e.g., 7h, 420m, 25200s)"
+                exit 1
+            fi
+            TIMEOUT_DURATION="$2"
+            shift 2
+            ;;
         --config)
             if [[ -z "$2" ]]; then
                 echo "Error: --config requires a file path"
@@ -297,6 +315,18 @@ if [[ "$VERBOSE_MODE" == true ]]; then
     CLAUDE_OPTS="$CLAUDE_OPTS --verbose"
 fi
 
+# Check if this is already running under timeout
+if [[ -z "${CLAUDE_RUNNER_UNDER_TIMEOUT:-}" ]]; then
+    # Not under timeout yet, restart with timeout if available
+    if command -v timeout >/dev/null 2>&1; then
+        echo "Starting script with timeout of $TIMEOUT_DURATION..."
+        export CLAUDE_RUNNER_UNDER_TIMEOUT=1
+        exec timeout "$TIMEOUT_DURATION" "$0" "$@"
+    else
+        echo "Warning: 'timeout' command not found. Running without timeout limit."
+    fi
+fi
+
 # Function to check for error patterns
 check_response() {
     local response="$1"
@@ -319,6 +349,7 @@ check_response() {
 # Function to execute Claude command safely
 execute_claude() {
     local message="$1"
+    local is_first_message="$2"
     local temp_file
     
     # Create temporary file with proper cleanup
@@ -337,7 +368,13 @@ execute_claude() {
     fi
     
     # Execute Claude command with proper error handling
-    if ! claude $CLAUDE_OPTS -c -p "$message" 2>&1 | tee -a "$LOG_FILE" | tee "$temp_file"; then
+    # Only add -c flag for non-first messages
+    local continue_flag=""
+    if [[ "$is_first_message" != "true" ]]; then
+        continue_flag="-c"
+    fi
+    
+    if ! claude $CLAUDE_OPTS $continue_flag -p "$message" 2>&1 | tee -a "$LOG_FILE" | tee "$temp_file"; then
         echo "Error: Claude command failed with exit code $?"
         echo "Check if Claude CLI is properly configured and authenticated."
         rm -f "$temp_file"
@@ -361,11 +398,12 @@ execute_claude() {
 # Function to execute Claude command with retry logic
 execute_claude_with_retry() {
     local message="$1"
+    local is_first_message="$2"
     local attempt=1
     local delay=$RETRY_DELAY
     
     while [[ $attempt -le $MAX_RETRIES ]]; do
-        if execute_claude "$message"; then
+        if execute_claude "$message" "$is_first_message"; then
             return 0
         fi
         
@@ -390,6 +428,7 @@ echo "  Verbose mode: $VERBOSE_MODE"
 echo "  Log directory: $LOG_DIR"
 echo "  Wait time: $WAIT_TIME seconds"
 echo "  Max log size: $(($MAX_LOG_SIZE / 1048576))MB"
+echo "  Timeout duration: $TIMEOUT_DURATION"
 echo "  Error patterns: ${ERROR_PATTERNS[*]}"
 echo "==================================="
 echo ""
@@ -401,13 +440,10 @@ if [[ "$DANGEROUS_MODE" != true ]]; then
     echo ""
 fi
 
-# Main loop
-echo "Starting automated Claude execution..."
-echo "Press Ctrl+C to stop at any time"
-echo ""
-
-iteration=0
-while true; do
+# Function to run the main loop
+run_main_loop() {
+    iteration=0
+    while true; do
     ((iteration++))
     
     # Rotate log file if necessary
@@ -419,7 +455,7 @@ while true; do
     echo "Executing first command..." | tee -a "$LOG_FILE"
     echo "Message: $MESSAGE1" | tee -a "$LOG_FILE"
     
-    if ! execute_claude_with_retry "$MESSAGE1"; then
+    if ! execute_claude_with_retry "$MESSAGE1" "true"; then
         echo "Error detected in first command after retries. Exiting..." | tee -a "$LOG_FILE"
         break
     fi
@@ -428,7 +464,7 @@ while true; do
     echo -e "\nExecuting second command..." | tee -a "$LOG_FILE"
     echo "Message: $MESSAGE2" | tee -a "$LOG_FILE"
     
-    if ! execute_claude_with_retry "$MESSAGE2"; then
+    if ! execute_claude_with_retry "$MESSAGE2" "false"; then
         echo "Error detected in second command after retries. Exiting..." | tee -a "$LOG_FILE"
         break
     fi
@@ -446,6 +482,15 @@ while true; do
             echo "Continuing..." | tee -a "$LOG_FILE"
         fi
     done
-done
+    done
+}
+
+# Main execution
+echo "Starting automated Claude execution..."
+echo "Press Ctrl+C to stop at any time"
+echo ""
+
+# Start the main loop (will be killed by timeout if set)
+run_main_loop
 
 echo "Execution completed." | tee -a "$LOG_FILE"
