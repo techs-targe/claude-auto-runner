@@ -9,7 +9,7 @@ VERSION = $(shell grep "^VERSION=" $(SCRIPT_NAME) | cut -d'"' -f2)
 .DEFAULT_GOAL := help
 
 # Phony targets
-.PHONY: help install uninstall test security-check lint clean update-version release docker-build docker-run docker-compose-up docker-compose-down
+.PHONY: help install uninstall test security-check lint clean update-version release docker-build docker-run docker-compose-up docker-compose-down install-completions
 
 # Help target
 help:
@@ -24,6 +24,7 @@ help:
 	@echo "  make lint          - Run shellcheck (if installed)"
 	@echo "  make clean         - Clean up log files and temporary files"
 	@echo "  make release       - Create a new release (updates version)"
+	@echo "  make install-completions - Install shell completions (bash/zsh)"
 	@echo ""
 	@echo "Docker targets:"
 	@echo "  make docker-build  - Build Docker image"
@@ -173,3 +174,30 @@ docker-down:
 
 docker-logs:
 	@docker-compose logs -f claude-runner
+
+# Shell completion installation
+install-completions:
+	@echo "Installing shell completions..."
+	@if [ -n "$${BASH_VERSION}" ]; then \
+		if [ -d /etc/bash_completion.d ]; then \
+			echo "Installing bash completion system-wide..."; \
+			sudo cp completions/claude-auto-runner.bash /etc/bash_completion.d/; \
+		else \
+			echo "Adding bash completion to ~/.bashrc..."; \
+			echo "source $(PWD)/completions/claude-auto-runner.bash" >> ~/.bashrc; \
+			echo "Run 'source ~/.bashrc' to activate"; \
+		fi; \
+	elif [ -n "$${ZSH_VERSION}" ]; then \
+		if [ -d ~/.oh-my-zsh/completions ]; then \
+			echo "Installing zsh completion for Oh My Zsh..."; \
+			cp completions/_claude-auto-runner ~/.oh-my-zsh/completions/; \
+		elif [ -w /usr/local/share/zsh/site-functions ]; then \
+			echo "Installing zsh completion system-wide..."; \
+			sudo cp completions/_claude-auto-runner /usr/local/share/zsh/site-functions/; \
+		else \
+			echo "Add this to your ~/.zshrc:"; \
+			echo "fpath=($(PWD)/completions \$$fpath)"; \
+		fi; \
+	else \
+		echo "Unknown shell. See completions/README.md for manual installation."; \
+	fi

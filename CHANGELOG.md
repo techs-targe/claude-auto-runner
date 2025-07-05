@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Example configuration file (.claude-runner.conf.example)
 - Configuration loading from multiple locations (current dir, home, /etc)
 - Configuration file tests in test suite
+- Shell completion support for bash and zsh
+- Completion files with installation instructions
+- make install-completions target for easy setup
+- Tab completion for all options, directories, and config files
 
 ## [1.0.0] - 2025-01-05
 

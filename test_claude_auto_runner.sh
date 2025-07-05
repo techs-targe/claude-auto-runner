@@ -236,6 +236,34 @@ test_config_support() {
     fi
 }
 
+# Test 15: Shell completion support
+test_shell_completion() {
+    local completions_found=true
+    local missing_files=""
+    
+    # Check for completion files
+    if [[ ! -f "completions/claude-auto-runner.bash" ]]; then
+        completions_found=false
+        missing_files="$missing_files bash"
+    fi
+    
+    if [[ ! -f "completions/_claude-auto-runner" ]]; then
+        completions_found=false
+        missing_files="$missing_files zsh"
+    fi
+    
+    if [[ ! -f "completions/README.md" ]]; then
+        completions_found=false
+        missing_files="$missing_files README"
+    fi
+    
+    if [[ "$completions_found" == true ]]; then
+        print_result "Shell completion files" "pass"
+    else
+        print_result "Shell completion files" "fail" "Missing:$missing_files"
+    fi
+}
+
 # Main test execution
 echo "==================================="
 echo "Claude Auto Runner Test Suite"
@@ -257,6 +285,7 @@ test_file_permissions
 test_shellcheck
 test_docker_support
 test_config_support
+test_shell_completion
 
 # Summary
 echo ""

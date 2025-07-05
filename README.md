@@ -48,6 +48,7 @@ You can easily modify the messages using Claude Code to fit your specific use ca
 - **Signal Handling**: Graceful shutdown with Ctrl+C and proper cleanup
 - **Improved Error Handling**: Better pattern matching and error detection
 - **Iteration Tracking**: Progress tracking with numbered iterations
+- **Shell Completion**: Tab completion support for bash and zsh
 
 ## Installation
 
@@ -62,6 +63,11 @@ cd claude-auto-runner
 2. Install using make (recommended):
 ```bash
 make install
+```
+
+3. (Optional) Install shell completions:
+```bash
+make install-completions
 ```
 
 ### Manual Install
