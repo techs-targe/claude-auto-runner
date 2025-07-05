@@ -1,6 +1,9 @@
 #!/bin/bash
 # claude-auto-runner.sh - Automated Claude execution script with configurable options
 
+# Set secure umask for file creation
+umask 077
+
 # Default values
 DANGEROUS_MODE=false
 VERBOSE_MODE=false
@@ -23,8 +26,8 @@ cleanup() {
     exit 0
 }
 
-# Setup signal handlers
-trap cleanup SIGINT SIGTERM
+# Setup signal handlers and exit cleanup
+trap cleanup EXIT SIGINT SIGTERM
 
 # Function to display help
 show_help() {
