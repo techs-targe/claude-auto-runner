@@ -16,3 +16,12 @@ Thumbs.db
 .vscode/
 .idea/
 *.iml
+
+# Docker volumes
+logs/
+claude-config/
+
+# Environment files
+.env
+.env.local
+.env.production

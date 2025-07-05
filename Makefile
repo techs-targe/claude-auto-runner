@@ -9,7 +9,7 @@ VERSION = $(shell grep "^VERSION=" $(SCRIPT_NAME) | cut -d'"' -f2)
 .DEFAULT_GOAL := help
 
 # Phony targets
-.PHONY: help install uninstall test security-check lint clean update-version release
+.PHONY: help install uninstall test security-check lint clean update-version release docker-build docker-run docker-compose-up docker-compose-down
 
 # Help target
 help:
@@ -24,6 +24,12 @@ help:
 	@echo "  make lint          - Run shellcheck (if installed)"
 	@echo "  make clean         - Clean up log files and temporary files"
 	@echo "  make release       - Create a new release (updates version)"
+	@echo ""
+	@echo "Docker targets:"
+	@echo "  make docker-build  - Build Docker image"
+	@echo "  make docker-run    - Run in Docker container"
+	@echo "  make docker-up     - Start with docker-compose"
+	@echo "  make docker-down   - Stop docker-compose services"
 	@echo ""
 	@echo "Current version: $(VERSION)"
 
@@ -140,3 +146,30 @@ dev-setup: check-deps
 	@chmod +x test_claude_auto_runner.sh
 	@chmod +x security_check.sh
 	@echo "Development setup complete!"
+
+# Docker targets
+docker-build:
+	@echo "Building Docker image..."
+	@docker build -t claude-auto-runner:$(VERSION) -t claude-auto-runner:latest .
+	@echo "Docker image built successfully!"
+
+docker-run: docker-build
+	@echo "Running Claude Auto Runner in Docker..."
+	@mkdir -p logs
+	@docker run -it --rm \
+		-v $(PWD)/logs:/app/logs \
+		claude-auto-runner:latest
+
+docker-up:
+	@echo "Starting Claude Auto Runner with docker-compose..."
+	@docker-compose up -d
+	@echo "Claude Auto Runner is running in the background."
+	@echo "View logs with: docker-compose logs -f"
+
+docker-down:
+	@echo "Stopping Claude Auto Runner..."
+	@docker-compose down
+	@echo "Claude Auto Runner stopped."
+
+docker-logs:
+	@docker-compose logs -f claude-runner

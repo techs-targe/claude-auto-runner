@@ -197,6 +197,45 @@ test_shellcheck() {
     fi
 }
 
+# Test 13: Docker support files
+test_docker_support() {
+    local docker_files_found=true
+    local missing_files=""
+    
+    # Check for Docker files
+    for file in "Dockerfile" "docker-compose.yml" ".dockerignore" "DOCKER.md"; do
+        if [[ ! -f "$file" ]]; then
+            docker_files_found=false
+            missing_files="$missing_files $file"
+        fi
+    done
+    
+    if [[ "$docker_files_found" == true ]]; then
+        print_result "Docker support files" "pass"
+    else
+        print_result "Docker support files" "fail" "Missing files:$missing_files"
+    fi
+}
+
+# Test 14: Configuration file support
+test_config_support() {
+    local script_content=$(cat ./claude-auto-runner.sh)
+    
+    # Check for config loading function
+    if echo "$script_content" | grep -q 'load_config()' && echo "$script_content" | grep -q -- '--config'; then
+        print_result "Configuration file support" "pass"
+    else
+        print_result "Configuration file support" "fail" "Config loading not implemented"
+    fi
+    
+    # Check for example config file
+    if [[ -f ".claude-runner.conf.example" ]]; then
+        print_result "Example config file exists" "pass"
+    else
+        print_result "Example config file exists" "fail" "Missing .claude-runner.conf.example"
+    fi
+}
+
 # Main test execution
 echo "==================================="
 echo "Claude Auto Runner Test Suite"
@@ -216,6 +255,8 @@ test_argument_parsing
 test_required_functions
 test_file_permissions
 test_shellcheck
+test_docker_support
+test_config_support
 
 # Summary
 echo ""

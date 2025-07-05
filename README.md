@@ -12,6 +12,7 @@ This script automates the execution of Claude Code commands in a loop, allowing 
 
 - 🚀 [Quick Start Guide](QUICKSTART.md) - Get started in 5 minutes
 - 📚 [Examples & Use Cases](EXAMPLES.md) - Practical scenarios and patterns
+- 🐳 [Docker Guide](DOCKER.md) - Containerized deployment
 - 🔧 [Troubleshooting](TROUBLESHOOTING.md) - Solve common issues
 - 🤝 [Contributing](CONTRIBUTING.md) - How to contribute
 - 📝 [Changelog](CHANGELOG.md) - Version history
@@ -77,6 +78,20 @@ chmod +x claude-auto-runner.sh
 sudo cp claude-auto-runner.sh /usr/local/bin/
 ```
 
+### Docker Install
+
+Run Claude Auto Runner in a container:
+
+```bash
+# Build the image
+docker build -t claude-auto-runner:latest .
+
+# Run with Docker Compose
+docker-compose up -d
+```
+
+See [DOCKER.md](DOCKER.md) for detailed Docker instructions.
+
 ## Usage
 
 ### Basic Usage
@@ -118,13 +133,32 @@ sudo cp claude-auto-runner.sh /usr/local/bin/
 | `-c, --clear-errors` | Clear default error patterns before adding new ones |
 | `-w, --wait SECONDS` | Set wait time between iterations (default: 5) |
 | `--max-log-size SIZE` | Set maximum log file size in bytes (default: 10MB) |
+| `--config FILE` | Use custom configuration file |
 
-## Default Messages
+## Configuration
+
+### Configuration File
+
+Claude Auto Runner supports configuration files to set default values. The script looks for configuration in these locations (in order):
+
+1. `./.claude-runner.conf` (current directory)
+2. `~/.claude-runner.conf` (home directory)
+3. `/etc/claude-runner.conf` (system-wide)
+
+You can also specify a custom config file with `--config`:
+
+```bash
+./claude-auto-runner.sh --config my-config.conf
+```
+
+See [.claude-runner.conf.example](.claude-runner.conf.example) for a sample configuration file.
+
+### Default Messages
 
 1. **First Message**: "next Ultrathink, please work with full effort without holding back. If you encounter an unsolvable problem, say stop."
 2. **Second Message**: "Have you finished testing and verification? You haven't deviated from the design document on your own judgment, right? If the content deviates, please read the design document and modify it to match the design specifications. Ultrathink, please work with full effort without holding back. If you encounter an unsolvable problem, say stop."
 
-## Default Error Patterns
+### Default Error Patterns
 
 - `API ERROR`
 - `stop`

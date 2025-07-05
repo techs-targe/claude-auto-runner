@@ -21,6 +21,49 @@ MAX_LOG_SIZE=10485760  # 10MB in bytes
 MAX_RETRIES=3
 RETRY_DELAY=5
 
+# Configuration file paths (in order of precedence)
+CONFIG_FILES=(
+    "./.claude-runner.conf"
+    "$HOME/.claude-runner.conf"
+    "/etc/claude-runner.conf"
+)
+
+# Function to load configuration file
+load_config() {
+    local config_file=""
+    
+    # Find first existing config file
+    for file in "${CONFIG_FILES[@]}"; do
+        if [[ -f "$file" && -r "$file" ]]; then
+            config_file="$file"
+            break
+        fi
+    done
+    
+    # Load config if found
+    if [[ -n "$config_file" ]]; then
+        echo "Loading configuration from: $config_file"
+        
+        # Save current ERROR_PATTERNS
+        local temp_patterns=("${ERROR_PATTERNS[@]}")
+        
+        # Source the config file
+        # shellcheck disable=SC1090
+        source "$config_file"
+        
+        # Handle ERROR_PATTERNS specially (convert comma-separated to array)
+        if [[ -n "${ERROR_PATTERNS_STR:-}" ]]; then
+            IFS=',' read -ra ERROR_PATTERNS <<< "$ERROR_PATTERNS_STR"
+        elif [[ "${#temp_patterns[@]}" -eq 0 ]]; then
+            # Restore default if no patterns set
+            ERROR_PATTERNS=("${DEFAULT_ERROR_PATTERNS[@]}")
+        fi
+    fi
+}
+
+# Load configuration file if it exists
+load_config
+
 # Cleanup function
 cleanup() {
     echo -e "\n\nCleaning up..."
@@ -57,6 +100,7 @@ OPTIONS:
     -c, --clear-errors                  Clear default error patterns before adding new ones
     -w, --wait SECONDS                  Set wait time between iterations (default: 5)
     --max-log-size SIZE                 Set maximum log file size in bytes (default: 10MB)
+    --config FILE                       Use custom configuration file
 
 EXAMPLES:
     # Run with default settings (may hang on tool usage)
@@ -190,6 +234,19 @@ while [[ $# -gt 0 ]]; do
                 exit 1
             fi
             MAX_LOG_SIZE="$2"
+            shift 2
+            ;;
+        --config)
+            if [[ -z "$2" ]]; then
+                echo "Error: --config requires a file path"
+                exit 1
+            fi
+            if [[ ! -f "$2" ]]; then
+                echo "Error: Config file '$2' not found"
+                exit 1
+            fi
+            CONFIG_FILES=("$2")  # Override default config search
+            load_config
             shift 2
             ;;
         *)

@@ -1,0 +1,42 @@
+# Git files
+.git
+.gitignore
+
+# GitHub files
+.github/
+
+# Log files
+*.log
+claudelog_*
+logs/
+
+# Temporary files
+*.tmp
+*.swp
+*.swo
+*~
+
+# Test artifacts
+test_results/
+coverage/
+
+# Documentation files (not needed in container)
+*.md
+LICENSE
+
+# Development files
+Makefile
+.env.local
+.env.development
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+
+# Claude config (will be mounted as volume)
+claude-config/

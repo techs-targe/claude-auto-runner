@@ -1,0 +1,27 @@
+# Claude Auto Runner Configuration File
+# Copy this file to .claude-runner.conf and modify as needed
+# Settings in this file override script defaults but can be overridden by command line arguments
+
+# Execution mode
+DANGEROUS_MODE=false
+VERBOSE_MODE=false
+
+# Log settings
+LOG_DIR="./logs"
+MAX_LOG_SIZE=10485760  # 10MB in bytes
+
+# Messages
+MESSAGE1="next Ultrathink, please work with full effort without holding back. If you encounter an unsolvable problem, say stop."
+MESSAGE2="Have you finished testing and verification? You haven't deviated from the design document on your own judgment, right? If the content deviates, please read the design document and modify it to match the design specifications. Ultrathink, please work with full effort without holding back. If you encounter an unsolvable problem, say stop."
+
+# Error patterns (comma-separated)
+ERROR_PATTERNS_STR="API ERROR,stop"
+
+# Timing
+WAIT_TIME=5
+MAX_RETRIES=3
+RETRY_DELAY=5
+
+# Additional options (uncomment to enable)
+# CLEAR_ERRORS=true  # Clear default error patterns
+# CUSTOM_LOG_FORMAT="%Y-%m-%d %H:%M:%S"  # Custom timestamp format

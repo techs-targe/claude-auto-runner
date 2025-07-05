@@ -5,6 +5,20 @@ All notable changes to Claude Auto Runner will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Docker support with Dockerfile and docker-compose.yml
+- Docker documentation (DOCKER.md)
+- Docker-related Makefile targets (docker-build, docker-run, docker-up, docker-down)
+- .dockerignore file for optimized builds
+- Docker support test in test suite
+- Configuration file support (.claude-runner.conf)
+- --config option to specify custom configuration file
+- Example configuration file (.claude-runner.conf.example)
+- Configuration loading from multiple locations (current dir, home, /etc)
+- Configuration file tests in test suite
+
 ## [1.0.0] - 2025-01-05
 
 ### Added
