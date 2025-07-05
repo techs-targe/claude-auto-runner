@@ -6,7 +6,7 @@
 umask 077
 
 # Version information
-VERSION="1.0.0"
+VERSION="1.1.0"
 
 # Default values
 DANGEROUS_MODE=false
