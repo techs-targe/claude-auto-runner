@@ -12,9 +12,9 @@ VERSION="1.1.0"
 DANGEROUS_MODE=false
 VERBOSE_MODE=false
 LOG_DIR="."
-MESSAGE1="next Ultrathink, please work with full effort without holding back. If you encounter an unsolvable problem, say stop."
-MESSAGE2="Have you finished testing and verification? You haven't deviated from the design document on your own judgment, right? If the content deviates, please read the design document and modify it to match the design specifications. Ultrathink, please work with full effort without holding back. If you encounter an unsolvable problem, say stop."
-DEFAULT_ERROR_PATTERNS=("API ERROR" "stop")
+MESSAGE1="next Ultrathink, please work with full effort without holding back."
+MESSAGE2="Have you finished testing and verification? You haven't deviated from the design document on your own judgment, right? If the content deviates, please read the design document and modify it to match the design specifications. Ultrathink, please work with full effort without holding back."
+DEFAULT_ERROR_PATTERNS=("API ERROR")
 ERROR_PATTERNS=("${DEFAULT_ERROR_PATTERNS[@]}")
 WAIT_TIME=5
 MAX_LOG_SIZE=10485760  # 10MB in bytes
@@ -126,7 +126,6 @@ EXAMPLES:
 
 DEFAULT ERROR PATTERNS:
     - API ERROR
-    - stop
 
 NOTES:
     - Press Ctrl+C to stop the execution at any time
