@@ -30,6 +30,11 @@ You can easily modify the messages using Claude Code to fit your specific use ca
 - **Comprehensive Logging**: All outputs are logged with timestamps
 - **Dangerous Mode**: Option to skip permissions for advanced usage
 - **Custom Error Patterns**: Define your own error detection patterns
+- **Verbose Mode**: Option to see Claude's detailed thinking process
+- **Log File Management**: Automatic log rotation and compression when files exceed size limits
+- **Signal Handling**: Graceful shutdown with Ctrl+C and proper cleanup
+- **Improved Error Handling**: Better pattern matching and error detection
+- **Iteration Tracking**: Progress tracking with numbered iterations
 
 ## Installation
 
@@ -41,7 +46,7 @@ cd claude-auto-runner
 
 2. Make the script executable:
 ```bash
-chmod +x autocc.sh
+chmod +x claude-auto-runner.sh
 ```
 
 ## Usage
@@ -49,23 +54,26 @@ chmod +x autocc.sh
 ### Basic Usage
 
 ```bash
-./autocc.sh
+./claude-auto-runner.sh
 ```
 
 ### Advanced Options
 
 ```bash
 # Run in dangerous mode with custom log directory
-./autocc.sh --dangerous --log-dir /var/log/claude
+./claude-auto-runner.sh --dangerous --log-dir /var/log/claude
 
 # Run with custom messages
-./autocc.sh -m1 "Custom first message" -m2 "Custom second message"
+./claude-auto-runner.sh -m1 "Custom first message" -m2 "Custom second message"
 
 # Run with custom error patterns
-./autocc.sh --clear-errors --error-pattern "ERROR" --error-pattern "FAIL"
+./claude-auto-runner.sh --clear-errors --error-pattern "ERROR" --error-pattern "FAIL"
 
 # Run with all options
-./autocc.sh -d -l ./logs -m1 "Do task X" -m2 "Verify task X" -e "CRITICAL" -w 10
+./claude-auto-runner.sh -d -l ./logs -m1 "Do task X" -m2 "Verify task X" -e "CRITICAL" -w 10
+
+# Run with custom log file size limit (in bytes)
+./claude-auto-runner.sh --dangerous --max-log-size 52428800  # 50MB
 ```
 
 ### Command Line Options
@@ -74,12 +82,14 @@ chmod +x autocc.sh
 |--------|-------------|
 | `-h, --help` | Show help message and exit |
 | `-d, --dangerous` | Enable dangerous mode (--dangerously-skip-permissions) |
+| `-v, --verbose` | Enable verbose output to see Claude's thinking process |
 | `-l, --log-dir DIR` | Set log file directory (default: current directory) |
 | `-m1, --message1 "MESSAGE"` | Set first command message |
 | `-m2, --message2 "MESSAGE"` | Set second command message |
 | `-e, --error-pattern "PATTERN"` | Add error pattern to check (can be used multiple times) |
 | `-c, --clear-errors` | Clear default error patterns before adding new ones |
 | `-w, --wait SECONDS` | Set wait time between iterations (default: 5) |
+| `--max-log-size SIZE` | Set maximum log file size in bytes (default: 10MB) |
 
 ## Default Messages
 
@@ -95,11 +105,22 @@ chmod +x autocc.sh
 
 All outputs are logged to `claudelog_YYYYMMDD.log` in the specified directory.
 
+### Log File Management
+
+- **Automatic Rotation**: Log files are automatically rotated when they exceed the maximum size limit (default: 10MB)
+- **Compression**: Old log files are compressed with gzip to save disk space
+- **Timestamped Archives**: Rotated logs are archived with timestamps (e.g., `claudelog_20240101.log.20240101_143022.gz`)
+- **Size Control**: You can customize the maximum log file size using the `--max-log-size` option
+
 ## Notes
 
 - Press `Ctrl+C` to stop the execution at any time
 - The script will automatically exit if any error pattern is detected
 - Each iteration includes a pause to allow for manual intervention
+- The script now includes improved error handling and pattern matching
+- Log files are automatically managed with rotation and compression
+- Use `--verbose` mode to see Claude's detailed thinking process during execution
+- Signal handling ensures proper cleanup of temporary files on exit
 
 ## License
 
