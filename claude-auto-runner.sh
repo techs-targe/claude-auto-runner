@@ -161,6 +161,9 @@ rotate_log() {
     fi
 }
 
+# Save original arguments for timeout re-execution
+ORIGINAL_ARGS=("$@")
+
 # Parse command line arguments
 CLEAR_ERRORS=false
 while [[ $# -gt 0 ]]; do
@@ -321,7 +324,7 @@ if [[ -z "${CLAUDE_RUNNER_UNDER_TIMEOUT:-}" ]]; then
     if command -v timeout >/dev/null 2>&1; then
         echo "Starting script with timeout of $TIMEOUT_DURATION..."
         export CLAUDE_RUNNER_UNDER_TIMEOUT=1
-        exec timeout "$TIMEOUT_DURATION" "$0" "$@"
+        exec timeout "$TIMEOUT_DURATION" "$0" "${ORIGINAL_ARGS[@]}"
     else
         echo "Warning: 'timeout' command not found. Running without timeout limit."
     fi
