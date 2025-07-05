@@ -24,6 +24,16 @@ You can easily modify the messages using Claude Code to fit your specific use ca
 ./claude-auto-runner.sh
 ```
 
+## Recommended Usage
+
+```bash
+# Recommended settings for automated execution
+./claude-auto-runner.sh --dangerous --verbose
+
+# Run with specified log directory
+./claude-auto-runner.sh -d -v -l ./claude-logs
+```
+
 ## Options
 
 - `-d, --dangerous`: Skip permissions
