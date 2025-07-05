@@ -12,6 +12,9 @@ This script automates the execution of Claude Code commands in a loop, allowing 
 
 - 🚀 [Quick Start Guide](QUICKSTART.md) - Get started in 5 minutes
 - 📚 [Examples & Use Cases](EXAMPLES.md) - Practical scenarios and patterns
+- 🔧 [Troubleshooting](TROUBLESHOOTING.md) - Solve common issues
+- 🤝 [Contributing](CONTRIBUTING.md) - How to contribute
+- 📝 [Changelog](CHANGELOG.md) - Version history
 - 🔒 [Security Check](security_check.sh) - Validate security settings
 - 🧪 [Test Suite](test_claude_auto_runner.sh) - Run comprehensive tests
 
@@ -47,15 +50,31 @@ You can easily modify the messages using Claude Code to fit your specific use ca
 
 ## Installation
 
+### Quick Install
+
 1. Clone this repository:
 ```bash
 git clone git@github.com:techs-targe/claude-auto-runner.git
 cd claude-auto-runner
 ```
 
+2. Install using make (recommended):
+```bash
+make install
+```
+
+### Manual Install
+
+1. Clone the repository (as above)
+
 2. Make the script executable:
 ```bash
 chmod +x claude-auto-runner.sh
+```
+
+3. Optionally, copy to your PATH:
+```bash
+sudo cp claude-auto-runner.sh /usr/local/bin/
 ```
 
 ## Usage

@@ -1,8 +1,12 @@
 #!/bin/bash
 # claude-auto-runner.sh - Automated Claude execution script with configurable options
+# Version: 1.0.0
 
 # Set secure umask for file creation
 umask 077
+
+# Version information
+VERSION="1.0.0"
 
 # Default values
 DANGEROUS_MODE=false
@@ -34,12 +38,15 @@ trap cleanup EXIT SIGINT SIGTERM
 # Function to display help
 show_help() {
     cat << EOF
+Claude Auto Runner v$VERSION
+
 Usage: $0 [OPTIONS]
 
 Automated Claude execution script that runs Claude commands in a loop with error detection.
 
 OPTIONS:
     -h, --help                          Show this help message and exit
+    --version                           Show version information and exit
     -d, --dangerous                     Enable dangerous mode (--dangerously-skip-permissions)
                                         RECOMMENDED for automated execution
     -v, --verbose                       Enable verbose output to see Claude's thinking process
@@ -111,6 +118,10 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         -h|--help)
             show_help
+            exit 0
+            ;;
+        --version)
+            echo "Claude Auto Runner v$VERSION"
             exit 0
             ;;
         -d|--dangerous)
