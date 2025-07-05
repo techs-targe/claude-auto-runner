@@ -1,5 +1,7 @@
 # Claude Auto Runner
 
+[![Test Claude Auto Runner](https://github.com/techs-targe/claude-auto-runner/actions/workflows/test.yml/badge.svg)](https://github.com/techs-targe/claude-auto-runner/actions/workflows/test.yml)
+
 Automated Claude Code execution script with configurable options for running tasks while you sleep.
 
 ## Overview
@@ -125,6 +127,30 @@ All outputs are logged to `claudelog_YYYYMMDD.log` in the specified directory.
 ## License
 
 MIT License - see LICENSE file for details
+
+## Testing
+
+The project includes a comprehensive test suite to ensure reliability:
+
+```bash
+# Run the test suite
+./test_claude_auto_runner.sh
+```
+
+The test suite includes:
+- Syntax validation
+- Function existence checks
+- Default value verification
+- Error pattern validation
+- Signal handling tests
+- Log rotation functionality
+- Command-line argument parsing
+- File permission checks
+- ShellCheck validation (if installed)
+
+### Continuous Integration
+
+This project uses GitHub Actions for automated testing on every push and pull request. Tests are run on both Ubuntu and macOS to ensure cross-platform compatibility.
 
 ## Contributing
 

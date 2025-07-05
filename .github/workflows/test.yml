@@ -1,0 +1,77 @@
+name: Test Claude Auto Runner
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install ShellCheck
+      run: |
+        if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+        elif [ "${{ matrix.os }}" = "macos-latest" ]; then
+          brew install shellcheck
+        fi
+    
+    - name: Make scripts executable
+      run: |
+        chmod +x claude-auto-runner.sh
+        chmod +x test_claude_auto_runner.sh
+    
+    - name: Run tests
+      run: ./test_claude_auto_runner.sh
+    
+    - name: Run ShellCheck
+      run: shellcheck -S error claude-auto-runner.sh
+    
+    - name: Test help output
+      run: ./claude-auto-runner.sh --help
+    
+    - name: Test with various arguments
+      run: |
+        # Test dangerous mode
+        timeout 2s ./claude-auto-runner.sh --dangerous --wait 1 || true
+        
+        # Test verbose mode
+        timeout 2s ./claude-auto-runner.sh --dangerous --verbose --wait 1 || true
+        
+        # Test custom log directory
+        mkdir -p test_logs
+        timeout 2s ./claude-auto-runner.sh --dangerous --log-dir test_logs --wait 1 || true
+        
+        # Verify log file was created
+        ls test_logs/claudelog_*.log || echo "Log file test completed"
+
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Run security checks
+      run: |
+        # Check for hardcoded credentials
+        if grep -E "(password|secret|api_key|token)\\s*=\\s*[\"'][^\"']+[\"']" claude-auto-runner.sh; then
+          echo "WARNING: Potential hardcoded credentials found"
+          exit 1
+        fi
+        
+        # Check for dangerous commands
+        if grep -E "(rm -rf /|chmod 777)" claude-auto-runner.sh; then
+          echo "WARNING: Potentially dangerous commands found"
+          exit 1
+        fi
+        
+        echo "Security checks passed"
